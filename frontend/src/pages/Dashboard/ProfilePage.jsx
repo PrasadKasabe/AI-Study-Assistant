@@ -31,7 +31,10 @@ const ProfilePage = () => {
   const resolvePhotoUrl = (url) => {
     if (!url) return null;
     if (url.startsWith('http')) return url;
-    return `http://localhost:8000${url}`;
+    const baseApi = import.meta.env.VITE_API_URL 
+      ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')
+      : 'http://localhost:8000';
+    return `${baseApi}${url}`;
   };
   const [photoPreview, setPhotoPreview] = useState(resolvePhotoUrl(user?.profile_picture) || null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
