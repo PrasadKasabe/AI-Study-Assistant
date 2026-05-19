@@ -10,7 +10,8 @@ import {
   ChevronRight,
   Plus,
   X,
-  FileText
+  FileText,
+  ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -120,9 +121,9 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex h-[calc(100vh-120px)] bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+    <div className="flex h-[calc(100vh-95px)] md:h-[calc(100vh-120px)] bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-slate-100">
       {/* Chat Sidebar */}
-      <div className="w-80 border-r border-slate-100 flex flex-col bg-slate-50/50">
+      <div className={`w-full md:w-80 border-r border-slate-100 flex flex-col bg-slate-50/50 ${conversationId ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-slate-100">
           <button 
             onClick={() => setShowNoteSelect(true)}
@@ -150,7 +151,7 @@ const ChatPage = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col relative">
+      <div className={`flex-1 flex flex-col relative ${conversationId ? 'flex' : 'hidden md:flex'}`}>
         {!conversationId ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
             <div className="w-20 h-20 bg-primary-50 rounded-3xl flex items-center justify-center text-primary-600 mb-6">
@@ -168,13 +169,20 @@ const ChatPage = () => {
         ) : (
           <>
             {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+            <div className="px-4 py-3 md:px-6 md:py-4 border-b border-slate-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
               <div className="flex items-center gap-3">
+                <Link 
+                  to="/chat" 
+                  className="md:hidden p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors -ml-2"
+                  title="Back to conversations"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Link>
                 <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600">
                   <Bot className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-800 truncate">{currentConversation?.title}</h3>
+                  <h3 className="font-bold text-slate-800 truncate max-w-[150px] xs:max-w-none">{currentConversation?.title}</h3>
                   <p className="text-xs text-green-500 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                     AI Online
@@ -184,19 +192,19 @@ const ChatPage = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 bg-slate-50/30">
               {messages.map((msg, i) => (
                 <div 
                   key={i} 
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`flex gap-3 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                  <div className={`flex gap-3 max-w-[85%] md:max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                       msg.role === 'user' ? 'bg-primary-600 text-white' : 'bg-white shadow-sm border border-slate-100 text-primary-600'
                     }`}>
                       {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
                     </div>
-                    <div className={`p-4 rounded-2xl ${
+                    <div className={`p-3.5 md:p-4 rounded-2xl ${
                       msg.role === 'user' 
                         ? 'bg-primary-600 text-white shadow-md rounded-tr-none' 
                         : 'bg-white shadow-sm border border-slate-100 text-slate-700 rounded-tl-none'
@@ -208,11 +216,11 @@ const ChatPage = () => {
               ))}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="flex gap-3 max-w-[80%]">
+                  <div className="flex gap-3 max-w-[85%] md:max-w-[80%]">
                     <div className="w-8 h-8 rounded-lg bg-white shadow-sm border border-slate-100 text-primary-600 flex items-center justify-center shrink-0">
                       <Bot className="w-5 h-5" />
                     </div>
-                    <div className="p-4 rounded-2xl bg-white shadow-sm border border-slate-100 rounded-tl-none">
+                    <div className="p-3.5 md:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 rounded-tl-none">
                       <div className="flex gap-1">
                         <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></span>
                         <span className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
@@ -226,21 +234,21 @@ const ChatPage = () => {
             </div>
 
             {/* Input Area */}
-            <div className="p-6 bg-white border-t border-slate-100">
-              <form onSubmit={handleSendMessage} className="flex gap-3 max-w-4xl mx-auto">
+            <div className="p-4 md:p-6 bg-white border-t border-slate-100">
+              <form onSubmit={handleSendMessage} className="flex gap-2 md:gap-3 max-w-4xl mx-auto">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask anything about your notes..."
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-sm md:text-base focus:ring-2 focus:ring-primary-500 outline-none transition-all"
                 />
                 <button 
                   type="submit" 
                   disabled={!input.trim() || isTyping}
-                  className="btn-primary p-4 rounded-2xl disabled:opacity-50"
+                  className="btn-primary p-3 md:p-4 rounded-xl md:rounded-2xl disabled:opacity-50 flex items-center justify-center shrink-0"
                 >
-                  <Send className="w-6 h-6" />
+                  <Send className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
               </form>
             </div>
