@@ -27,8 +27,13 @@ const ProfilePage = () => {
   const { user, setUser } = useAuth();
   const photoInputRef = useRef(null);
 
-  // Profile photo state
-  const [photoPreview, setPhotoPreview] = useState(user?.profile_picture || null);
+  // Profile photo state — use full URL if it's a relative path from Django
+  const resolvePhotoUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    return `http://localhost:8000${url}`;
+  };
+  const [photoPreview, setPhotoPreview] = useState(resolvePhotoUrl(user?.profile_picture) || null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoStatus, setPhotoStatus] = useState('');
 
@@ -87,6 +92,9 @@ const ProfilePage = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setUser(res.data);
+      if (res.data.profile_picture) {
+        setPhotoPreview(resolvePhotoUrl(res.data.profile_picture));
+      }
       setPhotoStatus('success');
       setTimeout(() => setPhotoStatus(''), 2000);
     } catch (err) {
@@ -107,13 +115,24 @@ const ProfilePage = () => {
         email: editEmail,
         first_name: editFirstName,
         last_name: editLastName,
+      }, {
+        headers: { 'Content-Type': 'application/json' }
       });
       setUser(res.data);
       setProfileStatus({ type: 'success', message: 'Profile updated!' });
       setIsEditing(false);
       setTimeout(() => setProfileStatus({ type: '', message: '' }), 3000);
     } catch (err) {
-      const msg = err.response?.data?.username?.[0] || err.response?.data?.email?.[0] || 'Failed to update profile.';
+      console.error('Profile update error:', err.response?.data);
+      const data = err.response?.data || {};
+      // Extract first error from any field
+      const msg = data.username?.[0]
+        || data.email?.[0]
+        || data.first_name?.[0]
+        || data.last_name?.[0]
+        || data.detail
+        || data.error
+        || `Error ${err.response?.status || ''}: Failed to update profile.`;
       setProfileStatus({ type: 'error', message: msg });
     } finally {
       setSavingProfile(false);
