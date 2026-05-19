@@ -4,11 +4,22 @@ const getApiUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  // Dynamically resolve backend host if accessed over local network (e.g. from physical phone)
+  
   const hostname = window.location.hostname;
-  if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+  
+  // If we are on localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:8000/api/';
+  }
+  
+  // If testing locally over Wi-Fi on a mobile phone (e.g. 192.168.x.x, 10.x.x.x, 172.x.x.x)
+  const isLocalIp = /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(hostname);
+  if (isLocalIp) {
     return `http://${hostname}:8000/api/`;
   }
+  
+  // Live website production domain (like Vercel). Needs VITE_API_URL configured.
+  console.warn("VITE_API_URL is not defined. Please configure VITE_API_URL in your hosting settings (e.g. Vercel).");
   return 'http://localhost:8000/api/';
 };
 
