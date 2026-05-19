@@ -18,9 +18,8 @@ const getApiUrl = () => {
     return `http://${hostname}:8000/api/`;
   }
   
-  // Live website production domain (like Vercel). Needs VITE_API_URL configured.
-  console.warn("VITE_API_URL is not defined. Please configure VITE_API_URL in your hosting settings (e.g. Vercel).");
-  return 'http://localhost:8000/api/';
+  // Live website production domain (like Vercel). Uses the live Render backend by default!
+  return 'https://ai-study-assistant-x6ag.onrender.com/api/';
 };
 
 const API_URL = getApiUrl();

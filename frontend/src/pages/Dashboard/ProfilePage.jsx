@@ -30,9 +30,23 @@ const ProfilePage = () => {
   // Profile photo state — use full URL if it's a relative path from Django
   const resolvePhotoUrl = (url) => {
     if (!url) return null;
-    const baseApi = import.meta.env.VITE_API_URL 
-      ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')
-      : `${window.location.protocol}//${window.location.hostname}:8000`;
+    
+    let baseApi = '';
+    if (import.meta.env.VITE_API_URL) {
+      baseApi = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');
+    } else {
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        baseApi = 'http://localhost:8000';
+      } else {
+        const isLocalIp = /^(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(hostname);
+        if (isLocalIp) {
+          baseApi = `http://${hostname}:8000`;
+        } else {
+          baseApi = 'https://ai-study-assistant-x6ag.onrender.com';
+        }
+      }
+    }
 
     if (url.startsWith('http')) {
       if (url.includes('localhost:8000') && !window.location.hostname.includes('localhost')) {
