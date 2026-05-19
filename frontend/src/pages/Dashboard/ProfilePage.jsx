@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -30,12 +30,19 @@ const ProfilePage = () => {
   // Profile photo state — use full URL if it's a relative path from Django
   const resolvePhotoUrl = (url) => {
     if (!url) return null;
-    if (url.startsWith('http')) return url;
     const baseApi = import.meta.env.VITE_API_URL 
       ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')
-      : 'http://localhost:8000';
+      : `${window.location.protocol}//${window.location.hostname}:8000`;
+
+    if (url.startsWith('http')) {
+      if (url.includes('localhost:8000') && !window.location.hostname.includes('localhost')) {
+        return url.replace('http://localhost:8000', baseApi);
+      }
+      return url;
+    }
     return `${baseApi}${url}`;
   };
+
   const [photoPreview, setPhotoPreview] = useState(resolvePhotoUrl(user?.profile_picture) || null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoStatus, setPhotoStatus] = useState('');
@@ -75,6 +82,19 @@ const ProfilePage = () => {
     productUpdates: true,
   });
   const [notifSaved, setNotifSaved] = useState(false);
+
+  // Sync state with auth context user updates
+  useEffect(() => {
+    if (user) {
+      setEditFirstName(user.first_name || '');
+      setEditLastName(user.last_name || '');
+      setEditUsername(user.username || '');
+      setEditEmail(user.email || '');
+      setGeminiKey(user.gemini_api_key || '');
+      setGroqKey(user.groq_api_key || '');
+      setPhotoPreview(resolvePhotoUrl(user.profile_picture) || null);
+    }
+  }, [user]);
 
   // Handle photo upload
   const handlePhotoChange = async (e) => {
