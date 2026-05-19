@@ -99,9 +99,9 @@ DATABASES = {
     }
 }
 
-# Use PostgreSQL in production if DATABASE_URL is set
+# Use PostgreSQL in production if DATABASE_URL is set to a valid postgres URL
 db_url = os.getenv('DATABASE_URL')
-if db_url and db_url.strip():
+if db_url and (db_url.startswith('postgres://') or db_url.startswith('postgresql://')):
     DATABASES['default'] = dj_database_url.parse(db_url, conn_max_age=600, ssl_require=True)
 
 
