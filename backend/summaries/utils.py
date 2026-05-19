@@ -42,7 +42,7 @@ def generate_full_summary(text, summary_type='detailed', user_groq_key=None, use
         # Create client with the chosen key
         groq_client = Groq(api_key=groq_key)
         response = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_tokens=4096,

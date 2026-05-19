@@ -23,7 +23,7 @@ def get_chatbot_response(note_content, user_question, history=[], user_groq_key=
     try:
         groq_client = Groq(api_key=groq_key)
         response = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="llama-3.3-70b-versatile",
             messages=messages,
             temperature=0.7,
             max_tokens=1024,
