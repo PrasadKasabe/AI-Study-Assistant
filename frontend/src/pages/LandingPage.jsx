@@ -39,7 +39,10 @@ const LandingPage = () => {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link to="/register" className="btn-primary text-lg px-8 py-4">Start Learning Free</Link>
-              <button className="btn-secondary text-lg px-8 py-4 flex items-center gap-2">
+              <button
+                className="btn-secondary text-lg px-8 py-4 flex items-center gap-2"
+                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              >
                 <Brain className="w-5 h-5 text-primary-600" />
                 See How It Works
               </button>
@@ -77,7 +80,7 @@ const LandingPage = () => {
       </section>
 
       {/* Features */}
-      <section className="py-20 bg-white">
+      <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h2 className="text-3xl lg:text-5xl font-bold mb-16 text-slate-900">Why Choose StudyAI?</h2>
           <div className="grid md:grid-cols-3 gap-8 text-left">

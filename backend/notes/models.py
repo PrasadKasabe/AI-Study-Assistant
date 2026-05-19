@@ -7,6 +7,7 @@ class UploadedNote(models.Model):
     file = models.FileField(upload_to='notes/')
     content = models.TextField(blank=True, help_text="Extracted text content from the file")
     file_type = models.CharField(max_length=50, blank=True)
+    tags = models.JSONField(default=list, blank=True, help_text="List of user-defined tags")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

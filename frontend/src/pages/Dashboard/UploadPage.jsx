@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { Upload, File, Image as ImageIcon, X, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Upload, File, Image as ImageIcon, X, CheckCircle, Loader2, AlertCircle, Tag, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const SUGGESTED_TAGS = ['Physics', 'Math', 'History', 'Chemistry', 'Biology', 'Economics', 'Exam', 'Revision'];
 
 const UploadPage = () => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
+  const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -15,13 +19,30 @@ const UploadPage = () => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      if (selectedFile.size > 10 * 1024 * 1024) { // 10MB limit
+      if (selectedFile.size > 10 * 1024 * 1024) {
         setError('File size too large. Max 10MB.');
         return;
       }
       setFile(selectedFile);
       setTitle(selectedFile.name.replace(/\.[^/.]+$/, ""));
       setError('');
+    }
+  };
+
+  const addTag = (tag) => {
+    const trimmed = tag.trim();
+    if (trimmed && !tags.includes(trimmed) && tags.length < 8) {
+      setTags([...tags, trimmed]);
+    }
+    setTagInput('');
+  };
+
+  const removeTag = (tag) => setTags(tags.filter(t => t !== tag));
+
+  const handleTagKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag(tagInput);
     }
   };
 
@@ -35,6 +56,7 @@ const UploadPage = () => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title);
+    formData.append('tags', JSON.stringify(tags));
 
     try {
       const res = await api.post('notes/', formData, {
@@ -74,6 +96,47 @@ const UploadPage = () => {
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
               placeholder="e.g. History Chapter 1"
             />
+          </div>
+
+          {/* Tags Input */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
+              <Tag className="w-4 h-4" /> Tags <span className="text-slate-400 font-normal">(optional)</span>
+            </label>
+            <div className="flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl min-h-[48px]">
+              {tags.map(tag => (
+                <span key={tag} className="flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                  #{tag}
+                  <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-600 transition-colors">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              {tags.length < 8 && (
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagKeyDown}
+                  onBlur={() => tagInput.trim() && addTag(tagInput)}
+                  placeholder={tags.length === 0 ? "Type a tag and press Enter..." : "Add more..."}
+                  className="flex-1 min-w-[140px] bg-transparent outline-none text-sm text-slate-700 placeholder-slate-400"
+                />
+              )}
+            </div>
+            {/* Suggested Tags */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {SUGGESTED_TAGS.filter(t => !tags.includes(t)).map(tag => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => addTag(tag)}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-slate-100 text-slate-500 hover:bg-primary-50 hover:text-primary-600 transition-all"
+                >
+                  <Plus className="w-3 h-3" /> {tag}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div 
